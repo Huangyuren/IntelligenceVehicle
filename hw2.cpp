@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+// Marking notes
 struct MessageObj {
     int priority;
     int pre_priority;
