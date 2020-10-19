@@ -1,7 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-// Marking notes
 struct MessageObj {
     int priority;
     int pre_priority;
@@ -39,6 +38,7 @@ double wsResponseTime(int iters, double tau, vector<MessageObj*> &vec_msg) {
                 rhs += ceil((lhs+tau) / vec_msg[j]->period)*vec_msg[j]->trans;
             }
         }
+        if(lhs + vec_msg[i]->trans >= vec_msg[i]->period) return -1.0;
         //cout << lhs+vec_msg[i]->trans << endl;
         ans.push_back(lhs+vec_msg[i]->trans);
     }
@@ -108,11 +108,21 @@ int main(int argc, char* argv[]){
         double anneal_rate = 0.98;
         vector<int> vec_index_swap;
         srand(time(nullptr));
-        while(temperature > 10.0) {
+        while(temperature > 0.1) {
             counter++;
-            whoToBeSwap(iters, 4, vec_index_swap);
+            whoToBeSwap(iters, 2, vec_index_swap);
             getSwap(vec_msg, vec_index_swap);
-            local_cost = wsResponseTime(iters, tao, vec_msg);
+            bool illegal=false;
+            do {
+                local_cost = wsResponseTime(iters, tao, vec_msg);
+                if(local_cost == -1.0){
+                    illegal = true;
+                    restoreVec(vec_msg, vec_index_swap);
+                }
+                else{
+                    illegal = false;
+                }
+            }while(illegal);
             if(local_cost < best_cost) {
                 best_cost = local_cost;
                 vec_msg_optimal = vec_msg;
@@ -130,7 +140,6 @@ int main(int argc, char* argv[]){
                 }
             }
             temperature *= anneal_rate;
-            // for(int i=0; i<vec_index_swap.size(); ++i) cout << vec_index_swap[i] << endl;
         }
         for(int i=0; i<vec_msg_optimal.size(); ++i) {
             cout << vec_msg_optimal[i]->priority << endl;
