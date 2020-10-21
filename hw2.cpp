@@ -11,6 +11,10 @@ struct MessageObj {
 };
 
 double findMaxTrans(vector<MessageObj*> vec_msg, int bottom){
+    /*
+    Finding max transmission time from messages whose priority are lower than
+    or equal to current message (i.e., vec_msg[bottom])
+    */
     double ret = vec_msg[bottom]->trans;
     for(int i=bottom+1; i<vec_msg.size(); ++i){
         if(vec_msg[i]->trans > ret) ret = vec_msg[i]->trans;
@@ -18,6 +22,10 @@ double findMaxTrans(vector<MessageObj*> vec_msg, int bottom){
     return ret;
 }
 double wsResponseTime(int iters, double tau, vector<MessageObj*> &vec_msg) {
+    /*
+    Calculating worst case response time from $vec_msg; note that here we will
+    not check for exceeding period or not.
+    */
     vector<double> ans;
     double ret=0.0;
     for(int i=0; i<iters; ++i){
@@ -49,6 +57,13 @@ double wsResponseTime(int iters, double tau, vector<MessageObj*> &vec_msg) {
 }
 int genRandomNum(int base) { return rand()%base; }
 void whoToBeSwap(int base, int num, vector<int> &vec_index_swap) {
+    /*
+    Decide indexes that are to be swapped.
+    Parameters: 
+        base: modular base (ex. mod $base)
+        num: total number of swapped elements, should be even number and <= $base!
+        vec_index_swap: vector that store indexes.
+    */
     vec_index_swap.clear();
     auto check_and_push = [&]() {
         int input = genRandomNum(base);
@@ -113,6 +128,7 @@ int main(int argc, char* argv[]){
             whoToBeSwap(iters, 2, vec_index_swap);
             getSwap(vec_msg, vec_index_swap);
             bool illegal=false;
+            // Do-while loop for ensuring {worst-case response time <= period}
             do {
                 local_cost = wsResponseTime(iters, tao, vec_msg);
                 if(local_cost == -1.0){
@@ -150,4 +166,3 @@ int main(int argc, char* argv[]){
     }
     return 0;
 }
-
